@@ -1,7 +1,7 @@
 from fastapi import Query, Body, APIRouter
 from typing import Optional
 
-router = APIRouter(prefix="/hotels", tags="Отели")
+router = APIRouter(prefix="/hotels")
 
 hotels = [
     {"id": 1, "title": "Sochi", "name":"sochi"},
