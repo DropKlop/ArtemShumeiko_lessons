@@ -1,5 +1,6 @@
-from fastapi import Query, Body, APIRouter
+from fastapi import Query, APIRouter, Body
 from typing import Optional
+from schemas.hotels import Hotel, HotelPatch
 
 router = APIRouter(prefix="/hotels")
 
@@ -30,17 +31,29 @@ def del_hotel(
         return {"status":"Не найден отель"}
     return {"status":"не указан айди"}
 
+@router.post("")
+def create_hotel(hotel_data: Hotel = Body(openapi_examples={
+    "1":{"summary":"Сочи", "value":{
+        "title": "Сочи у моря",
+        "name":"Сочи"
+    }}})):
+    new_hotel = {
+            "id":hotels[-1]["id"] + 1,
+            "title":hotel_data.title,
+            "name":hotel_data.name
+    }
+    hotels.append(new_hotel)
+    return {"status":"OK", "new_hotel":new_hotel}
 
 @router.put("/{hotel_id}")
 def put_hotel(
         hotel_id:Optional[int],
-        title: str = Body(),
-        name: str = Body(),
+        hotel_data: Hotel
 ):
     for hotel in hotels:
         if hotel["id"] == hotel_id:
-            hotel["title"] = title
-            hotel["name"] = name
+            hotel["title"] = hotel_data.title
+            hotel["name"] = hotel_data.name
             return {"status" : "OK", "new hotel" : hotel}
         return {"status" : "hotel not found"}
     return {"status" : "not ok"}
@@ -49,16 +62,15 @@ def put_hotel(
 @router.patch("/{hotel_id}")
 def patch_hotel(
         hotel_id: Optional[int],
-        title: Optional[str] = Body(None),
-        name: Optional[str] = Body(None)
+        hotel_data: HotelPatch
 ):
     if hotel_id:
         for hotel in hotels:
             if hotel["id"]==hotel_id:
-                if title:
-                    hotel["title"] = title
-                if name:
-                    hotel["name"] = name
+                if hotel_data.title:
+                    hotel["title"] = hotel_data.title
+                if hotel_data.name:
+                    hotel["name"] = hotel_data.name
                 return {"status":"OK", "new hotel":hotel}
         return {"status" : "hotel not found"}
     return {"status":"hotel id not pass"}
