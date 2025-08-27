@@ -18,6 +18,16 @@ def get_hotels(
         return hotels
     return [hotel for hotel in hotels if hotel["title"] == title or hotel["id"] == id]
 
+@router.get("/pagination")
+def hotel_pagination(
+        page: int  = Query(1),
+        per_page: int = Query(3)
+):
+    page -= 1
+    per_page += page
+    return hotels[page:per_page]
+
+
 
 @router.delete("/{hotel_id}")
 def del_hotel(
