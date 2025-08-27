@@ -20,11 +20,10 @@ def get_hotels(
 
 @router.get("/pagination")
 def hotel_pagination(
-        page: int  = Query(1),
-        per_page: int = Query(3)
+        page: int | None = Query(1),
+        per_page: int | None = Query(3)
 ):
-    page -= 1
-    per_page += page
+    page = per_page * (page - 1)
     return hotels[page:per_page]
 
 
