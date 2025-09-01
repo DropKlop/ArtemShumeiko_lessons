@@ -1,7 +1,7 @@
 from fastapi import Query, APIRouter, Body
 from typing import Optional
 
-from sqlalchemy import insert, select, or_
+from sqlalchemy import insert, select, or_, func
 
 from src.api.dependecies import PaginationDep
 from src.database import async_sessionmaker_maker
@@ -13,20 +13,18 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 @router.get("")
 async def get_hotels(
         pagination: PaginationDep,
-        location: Optional[str] = Query(None, description="Локация отеля"),
-        title: Optional[str] = Query(None, description="Наименование отеля")
+        location: Optional[str] = Query("", description="Локация отеля"),
+        title: Optional[str] = Query("", description="Наименование отеля")
 ):
     limit = pagination.per_page
     offset = pagination.per_page * (pagination.page - 1)
     async with async_sessionmaker_maker() as session:
         select_query = (
             select(HotelsOrm)
-            .filter(
-                or_(
-                    HotelsOrm.location.like(f"%{location}%"),
-                    HotelsOrm.title.like(f"%{title}%")
+            .filter(func.lower(
+                HotelsOrm.location).contains(location.lower()),
+                    func.lower(HotelsOrm.title).contains(title.lower())
                 )
-            )
             .limit(limit)
             .offset(offset)
         )
