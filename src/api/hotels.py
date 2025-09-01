@@ -1,32 +1,29 @@
 from fastapi import Query, APIRouter, Body
 from typing import Optional
 
+from sqlalchemy import insert, select
+
 from src.api.dependecies import PaginationDep
+from src.database import async_sessionmaker_maker
+from src.models.hotels import HotelsOrm
 from src.schemas.hotels import Hotel, HotelPatch
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
-hotels = [
-    {"id": 1, "title": "Sochi", "name":"sochi"},
-    {"id": 2, "title": "Dubai", "name":"dubai"},
-    {"id": 3, "title": "Saint-Peterburg", "name":"spb"}
-]
-
 @router.get("")
-def get_hotels(
+async def get_hotels(
+    pagination: PaginationDep,
         id: Optional[int] = Query(None, description="Айди"),
         title: Optional[str] = Query(None, description="Наименование отеля")
 ):
-    if not id or not title:
+    async with async_sessionmaker_maker() as session:
+        select_query = select(HotelsOrm)
+        res = await session.execute(select_query)
+        hotels = res.scalars().all()
         return hotels
-    return [hotel for hotel in hotels if hotel["title"] == title or hotel["id"] == id]
 
-@router.get("/pagination")
-def hotel_pagination(
-        pagination: PaginationDep
-):
-    page = pagination.per_page * (pagination.page - 1)
-    return hotels[page:pagination.per_page]
+    #if pagination.page and pagination.per_page
+      #  return hotels_[pagination.per_page * (pagination.page - 1):][:pagination.per_page]
 
 
 
@@ -43,17 +40,17 @@ def del_hotel(
     return {"status":"не указан айди"}
 
 @router.post("")
-def create_hotel(hotel_data: Hotel = Body(openapi_examples={"1":{"summary":"Сочи", "value":{
+async def create_hotel(hotel_data: Hotel = Body(openapi_examples={"1":{"summary":"Сочи", "value":{
         "title": "Сочи у моря",
-        "name":"Сочи"
+        "location":"Сочи"
     }}})):
-    new_hotel = {
-            "id":hotels[-1]["id"] + 1,
-            "title":hotel_data.title,
-            "name":hotel_data.name
-    }
-    hotels.append(new_hotel)
-    return {"status":"OK", "new_hotel":new_hotel}
+
+    async with async_sessionmaker_maker() as session:
+        add_hotel_statement = insert(HotelsOrm).values(**hotel_data.model_dump())
+        await session.execute(add_hotel_statement)
+        await session.commit()
+
+    return {"status":"OK"}
 
 @router.put("/{hotel_id}")
 def put_hotel(
