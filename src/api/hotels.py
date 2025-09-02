@@ -32,30 +32,24 @@ async def create_hotel(hotel_data: Hotel):
 
 
 @router.delete("/{hotel_id}")
-def del_hotel(
+async def del_hotel(
         hotel_id: Optional[int]
 ):
-    if hotel_id:
-        for hotel in hotels:
-            if hotel["id"] == hotel_id:
-                hotels.remove(hotel)
-                return hotels
-        return {"status":"Не найден отель"}
-    return {"status":"не указан айди"}
+    async with async_sessionmaker_maker() as session:
+        await HotelsRepository(session).del_(id_ = hotel_id)
+        await session.commit()
+    return {"status":"OK"}
 
 
 @router.put("/{hotel_id}")
-def put_hotel(
+async def put_hotel(
         hotel_id:Optional[int],
         hotel_data: Hotel
 ):
-    for hotel in hotels:
-        if hotel["id"] == hotel_id:
-            hotel["title"] = hotel_data.title
-            hotel["name"] = hotel_data.name
-            return {"status" : "OK", "new hotel" : hotel}
-        return {"status" : "hotel not found"}
-    return {"status" : "not ok"}
+    async with async_sessionmaker_maker() as session:
+        await HotelsRepository(session).edit_(id = hotel_id, data = hotel_data)
+        await session.commit()
+    return {"status" : "OK"}
 
 
 @router.patch("/{hotel_id}")
