@@ -25,9 +25,9 @@ class BaseRepository:
         return res.scalars().one()
 
     async def del_(self,**filter_by) -> None:
-        delete_obj = delete(self.model).where(self.model.id == filter_by["id_"])
+        delete_obj = delete(self.model).filter_by(**filter_by)
         await self.session.execute(delete_obj)
 
-    async def edit_(self, data: BaseModel, **filter_by) -> None:
-        edit_obj = update(self.model).where(self.model.id == filter_by["id"]).values(**data.model_dump())
+    async def edit_(self, data: BaseModel, is_patch: bool = False, **filter_by) -> None:
+        edit_obj = update(self.model).filter_by(**filter_by).values(**data.model_dump(exclude_unset=is_patch))
         await self.session.execute(edit_obj)

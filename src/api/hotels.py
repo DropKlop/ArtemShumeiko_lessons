@@ -1,4 +1,4 @@
-from fastapi import Query, APIRouter, Body
+from fastapi import Query, APIRouter
 from typing import Optional
 
 
@@ -8,6 +8,7 @@ from src.repos.hotels import HotelsRepository
 from src.schemas.hotels import Hotel, HotelPatch
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
+
 
 @router.get("")
 async def get_hotels(
@@ -29,14 +30,12 @@ async def create_hotel(hotel_data: Hotel):
     return {"status":"OK", "data": hotel}
 
 
-
-
 @router.delete("/{hotel_id}")
 async def del_hotel(
         hotel_id: Optional[int]
 ):
     async with async_sessionmaker_maker() as session:
-        await HotelsRepository(session).del_(id_ = hotel_id)
+        await HotelsRepository(session).del_(id = hotel_id)
         await session.commit()
     return {"status":"OK"}
 
@@ -47,23 +46,17 @@ async def put_hotel(
         hotel_data: Hotel
 ):
     async with async_sessionmaker_maker() as session:
-        await HotelsRepository(session).edit_(id = hotel_id, data = hotel_data)
+        await HotelsRepository(session).edit_(hotel_data, id = hotel_id)
         await session.commit()
     return {"status" : "OK"}
 
 
 @router.patch("/{hotel_id}")
-def patch_hotel(
+async def patch_hotel(
         hotel_id: Optional[int],
         hotel_data: HotelPatch
 ):
-    if hotel_id:
-        for hotel in hotels:
-            if hotel["id"]==hotel_id:
-                if hotel_data.title:
-                    hotel["title"] = hotel_data.title
-                if hotel_data.name:
-                    hotel["name"] = hotel_data.name
-                return {"status":"OK", "new hotel":hotel}
-        return {"status" : "hotel not found"}
-    return {"status":"hotel id not pass"}
+    async with async_sessionmaker_maker() as session:
+        await HotelsRepository(session).edit_(hotel_data, is_patch=True, id = hotel_id)
+        await session.commit()
+    return {"status" : "OK"}
