@@ -16,7 +16,6 @@ class BaseRepository:
     async def get_one_or_none(self, **filter_by):
         select_query = select(self.model).filter_by(**filter_by)
         res = await self.session.execute(select_query)
-
         return res.scalars().one_or_none()
 
     async def add_(self,data_: BaseModel):

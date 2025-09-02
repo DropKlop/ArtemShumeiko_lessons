@@ -21,6 +21,7 @@ async def get_hotels(
     async with async_sessionmaker_maker() as session:
         return await HotelsRepository(session).get_all(location = location, title = title, limit =limit or 5, offset = offset)
 
+
 @router.get("/{hotel_id}",
             description="Получение отеля по его id")
 async def get_hotel(
