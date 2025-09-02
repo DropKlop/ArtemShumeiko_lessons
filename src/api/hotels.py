@@ -23,7 +23,7 @@ async def get_hotels(
 
 
 @router.get("/{hotel_id}",
-            description="Получение отеля по его id")
+            description="Получение отеля по его ид")
 async def get_hotel(
         hotel_id: int
 ):
