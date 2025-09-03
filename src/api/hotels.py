@@ -5,7 +5,7 @@ from typing import Optional
 from src.api.dependecies import PaginationDep
 from src.database import async_sessionmaker_maker
 from src.repos.hotels import HotelsRepository
-from src.schemas.hotels import Hotel, HotelPatch
+from src.schemas.hotels import Hotel, HotelPatch, HotelAdd
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
@@ -32,7 +32,7 @@ async def get_hotel(
 
 
 @router.post("")
-async def create_hotel(hotel_data: Hotel):
+async def create_hotel(hotel_data: HotelAdd):
     async with async_sessionmaker_maker() as session:
         hotel = await HotelsRepository(session).add_(hotel_data)
         await session.commit()
@@ -52,7 +52,7 @@ async def del_hotel(
 @router.put("/{hotel_id}")
 async def put_hotel(
         hotel_id:Optional[int],
-        hotel_data: Hotel
+        hotel_data: HotelAdd
 ):
     async with async_sessionmaker_maker() as session:
         await HotelsRepository(session).edit_(hotel_data, id = hotel_id)
