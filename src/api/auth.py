@@ -43,6 +43,6 @@ async def only_auth(
 ):
     token = request.cookies.get("access_token")
     if token:
-        return {"Access token":token}
+        return {"Access-token":token}
     else:
         raise HTTPException(status_code=404, detail="Токен не найден")
