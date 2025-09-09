@@ -1,6 +1,7 @@
 
-from fastapi import APIRouter, HTTPException, Response, Request
+from fastapi import APIRouter, HTTPException, Response
 
+from src.api.dependecies import UserIdDeb
 from src.repos.users import UsersRepository
 from src.database import async_sessionmaker_maker
 from src.schemas.users import UserRequestAdd, UserAdd
@@ -37,12 +38,12 @@ async def login_user(
     return {"access_token":access_token}
 
 
-@router.post("/login_auth")
-async def only_auth(
-        request: Request
+@router.post("/me")
+async def get_me(
+        user_id: UserIdDeb
 ):
-    token = request.cookies.get("access_token")
-    if token:
-        return {"Access-token":token}
-    else:
-        raise HTTPException(status_code=404, detail="Токен не найден")
+    async with async_sessionmaker_maker() as session:
+        user = await UsersRepository(session).get_one_or_none(id=user_id)
+        return user
+
+
