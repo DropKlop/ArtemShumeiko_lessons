@@ -1,4 +1,4 @@
-from fastapi import Query, APIRouter
+from fastapi import APIRouter
 from typing import Optional
 
 
