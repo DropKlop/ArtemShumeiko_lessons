@@ -5,7 +5,7 @@ from typing import Optional
 from src.api.dependecies import PaginationDep
 from src.database import async_sessionmaker_maker
 from src.repos.hotels import HotelsRepository
-from src.schemas.hotels import Hotel, HotelPatch, HotelAdd
+from src.schemas.hotels import HotelPatch, HotelAdd
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
