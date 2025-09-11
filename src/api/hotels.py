@@ -3,8 +3,6 @@ from typing import Optional
 
 
 from src.api.dependecies import PaginationDep, DBDep
-from src.database import async_sessionmaker_maker
-from src.repos.hotels import HotelsRepository
 from src.schemas.hotels import HotelPatch, HotelAdd
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
@@ -25,47 +23,49 @@ async def get_hotels(
 @router.get("/{hotel_id}",
             description="Получение отеля по его ид")
 async def get_hotel(
+        db: DBDep,
         hotel_id: int
 ):
-    async with async_sessionmaker_maker() as session:
-        return await HotelsRepository(session).get_one_or_none(id = hotel_id)
+    return await db.hotels.get_one_or_none(id = hotel_id)
 
 
 @router.post("")
-async def create_hotel(hotel_data: HotelAdd):
-    async with async_sessionmaker_maker() as session:
-        hotel = await HotelsRepository(session).add_(hotel_data)
-        await session.commit()
+async def create_hotel(
+        db: DBDep,
+        hotel_data: HotelAdd
+):
+    hotel = await db.hotels.add_(hotel_data)
+    await db.commit()
     return {"status":"OK", "data": hotel}
 
 
 @router.delete("/{hotel_id}")
 async def del_hotel(
+        db: DBDep,
         hotel_id: Optional[int]
 ):
-    async with async_sessionmaker_maker() as session:
-        await HotelsRepository(session).del_(id = hotel_id)
-        await session.commit()
+    await db.hotels.del_(id = hotel_id)
+    await db.commit()
     return {"status":"OK"}
 
 
 @router.put("/{hotel_id}")
 async def put_hotel(
+        db: DBDep,
         hotel_id:Optional[int],
         hotel_data: HotelAdd
 ):
-    async with async_sessionmaker_maker() as session:
-        await HotelsRepository(session).edit_(hotel_data, id = hotel_id)
-        await session.commit()
+    await db.hotels.edit_(hotel_data, id = hotel_id)
+    await db.commit()
     return {"status" : "OK"}
 
 
 @router.patch("/{hotel_id}")
 async def patch_hotel(
+        db: DBDep,
         hotel_id: Optional[int],
         hotel_data: HotelPatch
 ):
-    async with async_sessionmaker_maker() as session:
-        await HotelsRepository(session).edit_(hotel_data, is_patch=True, id = hotel_id)
-        await session.commit()
+    await db.hotels.edit_(hotel_data, is_patch=True, id = hotel_id)
+    await db.commit()
     return {"status" : "OK"}
