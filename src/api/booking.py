@@ -22,6 +22,7 @@ async def booking_add(
     await db.commit()
     return {"status":"OK", "data": booking}
 
+
 @router.get("")
 async def get_all_booking(db:DBDep):
     bookings = await db.bookings.get_all()
