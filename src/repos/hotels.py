@@ -38,12 +38,21 @@ class HotelsRepository(BaseRepository):
             date_from: date,
             date_to: date,
             limit: int,
-            offset: int
+            offset: int,
+            location: str,
+            title: str
     ):
         rooms_ids_to_get = rooms_ids_for_booking(date_from, date_to)
+        hotels_ids = select(RoomsOrm.hotel_id)
+        if location:
+            hotels_ids = hotels_ids.filter(func.lower(HotelsOrm.location).contains(location.lower()))
+        if title:
+            hotels_ids = hotels_ids.filter(func.lower(HotelsOrm.title).contains(title.lower()))
         hotels_ids = (
-            select(RoomsOrm.hotel_id)
+            hotels_ids
             .select_from(RoomsOrm)
             .filter(RoomsOrm.id.in_(rooms_ids_to_get))
+            .limit(limit)
+            .offset(offset)
         )
         return await self.get_filtered(HotelsOrm.id.in_(hotels_ids))

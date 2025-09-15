@@ -26,7 +26,9 @@ async def get_hotels(
         date_from=date_from,
         date_to=date_to,
         limit=limit,
-        offset = offset
+        offset = offset,
+        location=location,
+        title=title
     )
 
 
