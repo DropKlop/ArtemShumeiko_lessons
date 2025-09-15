@@ -13,25 +13,6 @@ class HotelsRepository(BaseRepository):
     model = HotelsOrm
     schema = Hotel
 
-    async def get_all(self,
-                      location,
-                      title,
-                      limit,
-                      offset
-                      ):
-        select_query = select(HotelsOrm)
-        if location:
-            select_query = select_query.filter(func.lower(HotelsOrm.location).contains(location.lower()))
-        if title:
-            select_query = select_query.filter(func.lower(HotelsOrm.title).contains(title.lower()))
-        select_query = (
-            select_query
-            .limit(limit)
-            .offset(offset)
-        )
-        res = await self.session.execute(select_query)
-        return [Hotel.model_validate(hotel, from_attributes=True) for hotel in res.scalars().all()]
-
 
     async def get_filtered_by_time(
             self,
@@ -43,16 +24,20 @@ class HotelsRepository(BaseRepository):
             title: str
     ):
         rooms_ids_to_get = rooms_ids_for_booking(date_from, date_to)
-        hotels_ids = select(RoomsOrm.hotel_id)
-        if location:
-            hotels_ids = hotels_ids.filter(func.lower(HotelsOrm.location).contains(location.lower()))
-        if title:
-            hotels_ids = hotels_ids.filter(func.lower(HotelsOrm.title).contains(title.lower()))
         hotels_ids = (
-            hotels_ids
+            select(RoomsOrm.hotel_id)
             .select_from(RoomsOrm)
             .filter(RoomsOrm.id.in_(rooms_ids_to_get))
+        )
+        query = select(HotelsOrm).filter(HotelsOrm.id.in_(hotels_ids))
+        if location:
+            query = query.filter(func.lower(HotelsOrm.location).contains(location.lower()))
+        if title:
+            query = query.filter(func.lower(HotelsOrm.title).contains(title.lower()))
+        query = (
+            query
             .limit(limit)
             .offset(offset)
         )
-        return await self.get_filtered(HotelsOrm.id.in_(hotels_ids))
+        res = await self.session.execute(query)
+        return [Hotel.model_validate(hotel, from_attributes=True) for hotel in res.scalars().all()]
