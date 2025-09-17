@@ -5,7 +5,7 @@ from fastapi.params import Query
 from sqlalchemy.util import await_only
 
 from src.api.dependecies import DBDep
-from src.schemas.facilities import Facilities, FacilitiesAdd
+from src.schemas.facilities import FacilitiesAdd
 
 
 router = APIRouter(prefix="/facilities", tags=["Удобства"])

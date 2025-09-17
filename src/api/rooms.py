@@ -6,6 +6,7 @@ from typing import Optional
 from fastapi.params import Query
 
 from src.api.dependecies import DBDep
+from src.schemas.facilities import RoomFacilityAdd
 from src.schemas.rooms import RoomPatch, RoomAdd, RoomAddRequest, RoomPatchRequest
 
 router = APIRouter(prefix="/hotels", tags=["Комнаты"])
@@ -38,6 +39,9 @@ async def create_room(
         room_data: RoomAddRequest):
     _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
     room = await db.rooms.add_(_room_data)
+
+    rooms_facilities_data = [RoomFacilityAdd(room_id=room.id, facility_id=f_id) for f_id in room_data.facilities_ids]
+    await db.rooms_facilities.add_bulk(rooms_facilities_data)
     await db.commit()
     return {"status":"OK", "data": room}
 
@@ -62,6 +66,12 @@ async def put_room(
 ):
     _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
     await db.rooms.edit_(_room_data, id = room_id)
+
+    await db.rooms_facilities.del_(room_id=room_id)
+    if room_data.facilities_ids:
+        rooms_facilities_data = [RoomFacilityAdd(room_id=room_id, facility_id=f_id) for f_id in room_data.facilities_ids]
+        await db.rooms_facilities.add_bulk(rooms_facilities_data)
+
     await db.commit()
     return {"status" : "OK"}
 
@@ -75,5 +85,11 @@ async def patch_room(
 ):
     _room_data = RoomPatch(hotel_id=hotel_id, **room_data.model_dump(exclude_unset=True))
     await db.rooms.edit_(room_data, is_patch=True, id = room_id, hotel_id = hotel_id)
+
+    await db.rooms_facilities.del_(room_id=room_id)
+    if room_data.facilities_ids:
+        rooms_facilities_data = [RoomFacilityAdd(room_id=room_id, facility_id=f_id) for f_id in room_data.facilities_ids]
+        await db.rooms_facilities.add_bulk(rooms_facilities_data)
+
     await db.commit()
     return {"status" : "OK"}
