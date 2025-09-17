@@ -29,7 +29,7 @@ async def get_room(
         hotel_id: int,
         room_id: int
 ):
-    return await db.rooms.get_one_or_none(id = room_id, hotel_id = hotel_id)
+    return await db.rooms.get_one_or_none_with_facility(id = room_id, hotel_id = hotel_id)
 
 
 @router.post("/{hotel_id}/rooms")
@@ -66,12 +66,7 @@ async def put_room(
 ):
     _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
     await db.rooms.edit_(_room_data, id = room_id)
-
-    await db.rooms_facilities.del_(room_id=room_id)
-    if room_data.facilities_ids:
-        rooms_facilities_data = [RoomFacilityAdd(room_id=room_id, facility_id=f_id) for f_id in room_data.facilities_ids]
-        await db.rooms_facilities.add_bulk(rooms_facilities_data)
-
+    await db.rooms_facilities.set_rooms_facilities(room_id, facilities_ids=room_data.facilities_ids)
     await db.commit()
     return {"status" : "OK"}
 
@@ -83,13 +78,12 @@ async def patch_room(
         room_id: Optional[int],
         room_data: RoomPatchRequest
 ):
-    _room_data = RoomPatch(hotel_id=hotel_id, **room_data.model_dump(exclude_unset=True))
+    _room_data_dict = room_data.model_dump(exclude_unset=True)
+    _room_data = RoomPatch(hotel_id=hotel_id, **_room_data_dict)
     await db.rooms.edit_(room_data, is_patch=True, id = room_id, hotel_id = hotel_id)
 
-    await db.rooms_facilities.del_(room_id=room_id)
-    if room_data.facilities_ids:
-        rooms_facilities_data = [RoomFacilityAdd(room_id=room_id, facility_id=f_id) for f_id in room_data.facilities_ids]
-        await db.rooms_facilities.add_bulk(rooms_facilities_data)
+    if "facilities_ids" in _room_data_dict:
+        await db.rooms_facilities.set_rooms_facilities(room_id, facilities_ids=_room_data_dict["facilities_ids"])
 
     await db.commit()
     return {"status" : "OK"}
