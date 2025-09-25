@@ -18,6 +18,20 @@ async def setup_db(check_mode):
     async with engine_null_pull.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+        #после создания добавим сразу тестовые данные
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        with open("tests/mock_hotels.json", "r") as file:
+            data = json.load(file)
+            for item in data:
+                print(item)
+                await ac.post("/hotels",json=item)
+
+        with open("tests/mock_rooms.json", "r") as file:
+            data = json.load(file)
+            for item in data:
+                print(item)
+                await ac.post(f"/hotels/{item['hotel_id']}/rooms",json=item)
+
 
 
 
