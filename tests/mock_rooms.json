@@ -1,0 +1,30 @@
+[
+  {
+    "hotel_id": 1,
+    "title": "Улучшенный с террасой и видом на озеро",
+    "description": "",
+    "price": 24500,
+    "quantity": 5
+  },
+  {
+    "hotel_id": 1,
+    "title": "Делюкс Плюс",
+    "description": "Лучший номер отеля",
+    "price": 22400,
+    "quantity": 10
+  },
+  {
+    "hotel_id": 2,
+    "title": "Комната на двоих",
+    "description": "Лучший вариант на двоих гостей",
+    "price": 19500,
+    "quantity": 6
+  },
+    {
+    "hotel_id": 3,
+    "title": "Панорама рум",
+    "description": "Вид на все части города",
+    "price": 26000,
+    "quantity": 2
+  }
+]
