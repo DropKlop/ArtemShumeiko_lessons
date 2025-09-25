@@ -16,10 +16,14 @@ async def test_booking_crud(db):
     new_booking_data = await db.bookings.add_(booking_data)
     # Получить бронь
     new_booking_data = await db.bookings.get_one_or_none(id = new_booking_data.id)
-    assert new_booking_data is not None
+    assert new_booking_data
     # Обновить бронь
-    new_booking_data.price = 250
+    new_price = 250
+    new_booking_data.price = new_price
     await db.bookings.edit_(new_booking_data)
+    updated_booking_data = await db.bookings.get_one_or_none(id=new_booking_data.id)
+    assert updated_booking_data
+    assert updated_booking_data.price == new_price
     # Удалить бронь
     await db.bookings.del_(id = new_booking_data.id)
 
