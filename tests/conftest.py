@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from src.api.dependecies import get_db
 from src.backend_lessons import app
 from src.config import settings
 from src.database import Base, engine_null_pull, async_sessionmaker_maker_null_pull
@@ -13,10 +14,17 @@ from src.schemas.hotels import HotelAdd
 from src.schemas.rooms import RoomAdd
 from src.utils.db_manager import DBManager
 
-@pytest.fixture()
-async def db():
+
+async def get_db_null_pool():
     async with DBManager(session_factory=async_sessionmaker_maker_null_pull) as db:
         yield db
+
+@pytest.fixture()
+async def db():
+    async for db in get_db_null_pool():
+        yield db
+
+app.dependency_overrides[get_db] = get_db_null_pool
 
 @pytest.fixture(scope="session", autouse=True)
 def check_mode():
