@@ -66,14 +66,13 @@ async def test_root(ac, setup_db):
         })
 
 
-@pytest.fixture(scope="session", autouse=True)
-async def authenticated_ac(ac, test_root):
-    jk = await ac.post(
+@pytest.fixture(scope="session")
+async def authenticated_ac(test_root, ac):
+    await ac.post(
         "/auth/login",
         json={
             "email": "pupis@pes.com",
             "password": "pupis123"
         })
-    assert jk.status_code == 200
-    assert "access_token" in jk.cookies
-    yield jk
+    assert "access_token" in ac.cookies
+    yield ac

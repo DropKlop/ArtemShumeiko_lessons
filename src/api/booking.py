@@ -15,10 +15,11 @@ async def booking_add(
         db: DBDep,
 ):
     _room = await db.rooms.get_one_or_none(id=booking_data.room_id)
+    _hotel = await db.hotels.get_one_or_none(id=_room.hotel_id)
     if _room is None:
         raise HTTPException(status_code=404, detail="Данные не найдены")
     _booking_data = BookingAdd(price=_room.price,user_id=user_id, **booking_data.model_dump())
-    booking = await db.bookings.add_(_booking_data)
+    booking = await db.bookings.add_booking(_booking_data, hotel_id=_hotel.id)
     await db.commit()
     return {"status":"OK", "data": booking}
 
