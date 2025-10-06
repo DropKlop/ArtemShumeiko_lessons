@@ -15,7 +15,6 @@ async def delete_all_bookings(db):
     (1, "2024-08-06", "2024-08-15", 200)
 ])
 async def test_add_booking(room_id, date_from, date_to, status_code, db, authenticated_ac):
-    #room_id = (await db.rooms.get_all())[0].id
     response = await authenticated_ac.post(
         "/bookings",
         json={
@@ -54,7 +53,6 @@ async def test_add_and_get_bookings(room_id, date_from, date_to, status_code, co
             assert isinstance(res, dict)
             assert res["status"] == "OK"
             assert "data" in res
-            #print(res["data"])
 
     response_me = await authenticated_ac.get(
         "/bookings/me"
