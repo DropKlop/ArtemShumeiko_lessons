@@ -13,18 +13,21 @@ def test_task():
     sleep(5)
     print("harosh")
 
-#@celery_app.task
+
+# @celery_app.task
 def resize_image(path: str):
     sizes = [1000, 500, 200]
     output_folder = "src/static/images"
 
-    img= Image.open(path)
+    img = Image.open(path)
 
     base_name = os.path.basename(path)
     name, ext = os.path.splitext(base_name)
     print("я начал")
     for size in sizes:
-        img_resized = img.resize((size, int(img.height * ( size / img.width))), Image.Resampling.LANCZOS)
+        img_resized = img.resize(
+            (size, int(img.height * (size / img.width))), Image.Resampling.LANCZOS
+        )
 
         new_file_name = f"{name}_{size}px{ext}"
 

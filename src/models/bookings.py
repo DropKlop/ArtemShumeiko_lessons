@@ -6,6 +6,7 @@ from sqlalchemy import ForeignKey
 
 from src.database import Base
 
+
 class BookingsOrm(Base):
     __tablename__ = "bookings"
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter, HTTPException
 
 from src.api.dependecies import DBDep
 from src.schemas.bookings import BookingAdd, BookingAddRequest
@@ -10,30 +10,29 @@ router = APIRouter(prefix="/bookings", tags=["Бронирование"])
 
 @router.post("")
 async def booking_add(
-        booking_data: BookingAddRequest,
-        user_id: UserIdDeb,
-        db: DBDep,
+    booking_data: BookingAddRequest,
+    user_id: UserIdDeb,
+    db: DBDep,
 ):
     _room = await db.rooms.get_one_or_none(id=booking_data.room_id)
     _hotel = await db.hotels.get_one_or_none(id=_room.hotel_id)
     if _room is None:
         raise HTTPException(status_code=404, detail="Данные не найдены")
-    _booking_data = BookingAdd(price=_room.price,user_id=user_id, **booking_data.model_dump())
+    _booking_data = BookingAdd(
+        price=_room.price, user_id=user_id, **booking_data.model_dump()
+    )
     booking = await db.bookings.add_booking(_booking_data, hotel_id=_hotel.id)
     await db.commit()
-    return {"status":"OK", "data": booking}
+    return {"status": "OK", "data": booking}
 
 
 @router.get("")
-async def get_all_booking(db:DBDep):
+async def get_all_booking(db: DBDep):
     bookings = await db.bookings.get_all()
-    return {"status":"OK", "data":bookings}
+    return {"status": "OK", "data": bookings}
 
 
 @router.get("/me")
-async def get_my_booking(
-        db:DBDep,
-        user_id: UserIdDeb
-):
+async def get_my_booking(db: DBDep, user_id: UserIdDeb):
     bookings = await db.bookings.get_filtered(user_id=user_id)
-    return {"status":"OK", "data":bookings}
+    return {"status": "OK", "data": bookings}

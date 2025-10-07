@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from src.schemas.facilities import Facilities
 
@@ -10,6 +10,7 @@ class RoomAddRequest(BaseModel):
     price: int
     quantity: int
     facilities_ids: list[int] = []
+
 
 class RoomAdd(BaseModel):
     title: str

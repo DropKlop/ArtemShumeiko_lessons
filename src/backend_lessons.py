@@ -7,7 +7,6 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 
 
-
 import sys
 from pathlib import Path
 
@@ -29,6 +28,7 @@ async def lifespan(app: FastAPI):
     FastAPICache.init(RedisBackend(redis_manager.connect()), prefix="fastapi-cache")
     yield
     await redis_manager.close()
+
 
 app = FastAPI(lifespan=lifespan)
 

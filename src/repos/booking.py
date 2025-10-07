@@ -15,19 +15,15 @@ class BookingRepository(BaseRepository):
     mapper = BookingDataMapper
 
     async def get_booking_with_today_check_in(self):
-        query = (
-            select(BookingsOrm)
-            .filter(BookingsOrm.date_from == date.today())
-        )
+        query = select(BookingsOrm).filter(BookingsOrm.date_from == date.today())
         res = await self.session.execute(query)
-        return [self.mapper.map_to_domain_entity(booking) for booking in res.scalars().all()]
-
+        return [
+            self.mapper.map_to_domain_entity(booking) for booking in res.scalars().all()
+        ]
 
     async def add_booking(self, data: BookingAdd, hotel_id: int):
         rooms_ids_to_get = rooms_ids_for_booking(
-            date_from=data.date_from,
-            date_to=data.date_to,
-            hotel_id=hotel_id
+            date_from=data.date_from, date_to=data.date_to, hotel_id=hotel_id
         )
 
         res = await self.session.execute(rooms_ids_to_get)

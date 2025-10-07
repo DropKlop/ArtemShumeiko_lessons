@@ -5,7 +5,7 @@ from src.repos.hotels import HotelsRepository
 from src.repos.users import UsersRepository
 
 
-class  DBManager:
+class DBManager:
     def __init__(self, session_factory):
         self.session_factory = session_factory
 

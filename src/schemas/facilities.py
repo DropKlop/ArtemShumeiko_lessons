@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class FacilitiesAdd(BaseModel):
@@ -11,7 +11,7 @@ class Facilities(FacilitiesAdd):
 
 class RoomFacilityAdd(BaseModel):
     room_id: int
-    facility_id:int
+    facility_id: int
 
 
 class RoomFacility(RoomFacilityAdd):

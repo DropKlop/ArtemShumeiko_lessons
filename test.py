@@ -9,6 +9,7 @@ async def get_data_async(args):
         await asyncio.sleep(4)
     print(f"Данные получены {args}")
 
+
 async def main():
     task = [
         get_data_async("Дубай"),
@@ -17,8 +18,9 @@ async def main():
         get_data_async("Дубай"),
         get_data_async("Дубай"),
         get_data_async("Дубай"),
-        get_data_async("Сочи")
-            ]
+        get_data_async("Сочи"),
+    ]
     tk = await asyncio.gather(*task)
+
 
 asyncio.run(main())
