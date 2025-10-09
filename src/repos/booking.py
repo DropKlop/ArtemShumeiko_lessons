@@ -2,6 +2,7 @@ from datetime import date
 
 from sqlalchemy import select
 
+from src.exceptions import RoomCannotBeBookedExc
 from src.repos.base import BaseRepository
 
 from src.models.bookings import BookingsOrm
@@ -32,5 +33,5 @@ class BookingRepository(BaseRepository):
         if data.room_id in rooms_ids_to_book:
             new_booking = await self.add_(data)
             return new_booking
-        else:
-            return Exception
+
+        raise RoomCannotBeBookedExc
